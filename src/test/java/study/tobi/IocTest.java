@@ -5,15 +5,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import study.tobi.ioc.bean.AnnotatedHello;
+import study.tobi.ioc.bean.AnnotatedHelloConfig;
 import study.tobi.ioc.bean.Hello;
 import study.tobi.ioc.bean.Printer;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = {"/context.xml" })
+//@ContextConfiguration(locations = {"/context.xml" })
 public class IocTest {
 
     @Test
@@ -52,6 +54,31 @@ public class IocTest {
 
         hello.print();
         Assertions.assertThat(printer.toString()).isEqualTo("Hello Child");
+    }
+
+    @Test
+    public void 컴포넌트빈주입테스트(){
+        ApplicationContext ctx =
+                new AnnotationConfigApplicationContext(
+                        "study.tobi.ioc.bean");
+
+        AnnotatedHello hello = ctx.getBean("annotatedHello", AnnotatedHello.class);
+
+        Assertions.assertThat(hello).isNotNull();
+
+
+
+
+    }
+
+    @Test
+    public void 자바코드빈주입테스트(){
+
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(AnnotatedHelloConfig.class);
+        AnnotatedHello hello = ctx.getBean("AnnotatedHello", AnnotatedHello.class);
+
+        AnnotatedHelloConfig config = ctx.getBean("annotatedHelloConfig", AnnotatedHelloConfig.class);
+        Assertions.assertThat(config).isNotNull();
     }
 
 
