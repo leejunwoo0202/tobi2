@@ -3,9 +3,11 @@ package study.tobi;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -13,6 +15,9 @@ import study.tobi.ioc.bean.AnnotatedHello;
 import study.tobi.ioc.bean.AnnotatedHelloConfig;
 import study.tobi.ioc.bean.Hello;
 import study.tobi.ioc.bean.Printer;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @ExtendWith(SpringExtension.class)
 //@ContextConfiguration(locations = {"/context.xml" })
@@ -79,6 +84,59 @@ public class IocTest {
 
         AnnotatedHelloConfig config = ctx.getBean("annotatedHelloConfig", AnnotatedHelloConfig.class);
         Assertions.assertThat(config).isNotNull();
+    }
+
+    @Test
+    public void 싱글톤스코프테스트(){
+        ApplicationContext ac = new AnnotationConfigApplicationContext(
+                SingletonBean.class, SingletonClientBean.class);
+
+        Set<SingletonBean> beans = new HashSet<>();
+
+        beans.add(ac.getBean(SingletonBean.class));
+        beans.add(ac.getBean(SingletonBean.class));
+        Assertions.assertThat(beans.size()).isEqualTo(1);
+
+
+        beans.add(ac.getBean(SingletonClientBean.class).bean1);
+        beans.add(ac.getBean(SingletonClientBean.class).bean2);
+        Assertions.assertThat(beans.size()).isEqualTo(1);
+    }
+
+    static class SingletonBean{};
+    static class SingletonClientBean {
+        @Autowired
+        SingletonBean bean1;
+        @Autowired
+        SingletonBean bean2;
+    }
+
+    @Test
+    public void 프로토타입스코프테스트(){
+        ApplicationContext ac = new AnnotationConfigApplicationContext(
+                PrototypeBean.class, PrototypeClientBean.class);
+
+        Set<PrototypeBean> beans = new HashSet<>();
+
+        beans.add(ac.getBean(PrototypeBean.class));
+        Assertions.assertThat(beans.size()).isEqualTo(1);
+        beans.add(ac.getBean(PrototypeBean.class));
+        Assertions.assertThat(beans.size()).isEqualTo(2);
+
+
+        beans.add(ac.getBean(PrototypeClientBean.class).bean1);
+        Assertions.assertThat(beans.size()).isEqualTo(3);
+        beans.add(ac.getBean(PrototypeClientBean.class).bean2);
+        Assertions.assertThat(beans.size()).isEqualTo(4);
+    }
+
+    @Scope("prototype")
+    static class PrototypeBean{};
+    static class PrototypeClientBean {
+        @Autowired
+        PrototypeBean bean1;
+        @Autowired
+        PrototypeBean bean2;
     }
 
 

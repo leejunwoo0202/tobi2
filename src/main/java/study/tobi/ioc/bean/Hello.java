@@ -4,6 +4,9 @@ public class Hello {
     private String name;
     private Printer printer;
 
+
+
+
     public Hello() {
     }
 
