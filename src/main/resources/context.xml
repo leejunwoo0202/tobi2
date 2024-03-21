@@ -13,5 +13,21 @@
 
     <bean id="printer" class="study.tobi.ioc.bean.StringPrinter"/>
 
+    <beans profile="spring-test">
+        <jdbc:embedded-database id="datasource" type="HSQL">
+            <jdbc:script location="schema.sql"/>
+        </jdbc:embedded-database>
+    </beans>
+
+    <beans profile="dev">
+           <bean id="datasource" class="org.apache.commons.dbcp.BasicDataSource">
+               <property name="driverClassName" value="${db.driverClass}"/>
+               <property name="url" value="${db.url}"/>
+               <property name="username" value="${db.username}"/>
+               <property name="password" value="${db.password}"/>
+           </bean>
+    </beans>
+
+
 
 </beans>
